@@ -52,9 +52,60 @@
             border-bottom: 1px solid #e9ecef;
         }
         
-        .status p {
-            margin: 10px 0;
-            font-size: 1.1rem;
+        .distance-info {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 20px 0;
+        }
+        
+        .distance-circle {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: #3498db;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 15px;
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+        }
+        
+        .distance-value {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+        
+        .distance-unit {
+            font-size: 1rem;
+        }
+        
+        .direction-info {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 15px 0;
+        }
+        
+        .direction-arrow {
+            font-size: 3rem;
+            margin: 0 15px;
+            color: #3498db;
+        }
+        
+        .direction-text {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        
+        .closest-poi {
+            margin-top: 20px;
+            padding: 15px;
+            background: #e8f4fc;
+            border-radius: 10px;
+            text-align: center;
         }
         
         .content {
@@ -149,14 +200,6 @@
             line-height: 1.6;
             color: #555;
             min-height: 120px;
-            overflow: hidden;
-        }
-        
-        .typing-text {
-            border-right: 2px solid #3498db;
-            white-space: pre-wrap;
-            overflow: hidden;
-            display: inline-block;
         }
         
         .audio-controls {
@@ -238,20 +281,6 @@
             transform: translateY(-2px);
         }
         
-        .gps-status {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-top: 10px;
-            font-size: 1.1rem;
-        }
-        
-        .gps-icon {
-            margin-right: 10px;
-            font-size: 1.5rem;
-            color: #3498db;
-        }
-        
         footer {
             text-align: center;
             padding: 20px;
@@ -271,24 +300,8 @@
             100% { transform: scale(1); }
         }
         
-        @keyframes typing {
-            from { width: 0; }
-            to { width: 100%; }
-        }
-        
-        @keyframes blink {
-            50% { border-color: transparent; }
-        }
-        
         .pulse {
             animation: pulse 2s infinite;
-        }
-        
-        .typing-animation {
-            overflow: hidden;
-            border-right: 2px solid #3498db;
-            white-space: nowrap;
-            animation: typing 3s steps(40, end), blink 0.75s step-end infinite;
         }
         
         @media (max-width: 600px) {
@@ -309,6 +322,15 @@
             .gallery-main-image {
                 height: 200px;
             }
+            
+            .distance-circle {
+                width: 120px;
+                height: 120px;
+            }
+            
+            .distance-value {
+                font-size: 1.5rem;
+            }
         }
     </style>
 </head>
@@ -320,12 +342,20 @@
         </header>
         
         <div class="status">
-            <p id="location-status">Helymeghatározás inicializálása...</p>
-            <p id="current-coords">Jelenlegi koordináták: </p>
-            <p id="nearest-poi">Legközelebbi érdekes pont: </p>
-            <div class="gps-status">
-                <i class="fas fa-satellite gps-icon"></i>
-                <span id="gps-accuracy">GPS pontosság: </span>
+            <div class="distance-info">
+                <div class="distance-circle">
+                    <span id="distance-value" class="distance-value">--</span>
+                    <span class="distance-unit">méter</span>
+                </div>
+                <div class="direction-info">
+                    <i id="direction-arrow" class="fas fa-arrow-up direction-arrow"></i>
+                    <span id="direction-text" class="direction-text">Keresés...</span>
+                </div>
+            </div>
+            
+            <div class="closest-poi">
+                <h3 id="closest-poi-name">Legközelebbi érdekes pont</h3>
+                <p id="closest-poi-distance">Az alkalmazás érzékeli a pozíciódat...</p>
             </div>
         </div>
         
@@ -343,29 +373,22 @@
                 <h2 id="poi-title" class="poi-title"></h2>
                 <p id="poi-description" class="poi-description"></p>
                 <div class="audio-controls">
-                    <audio id="poi-audio" controls autoplay></audio>
+                    <audio id="poi-audio" controls></audio>
                 </div>
                 <button id="close-poi">Bezárás</button>
             </div>
             
-            <div class="poi-list">
-                <h2>Közeledben lévő érdekes pontok</h2>
-                <div id="poi-items"></div>
-            </div>
-            
             <div class="simulation-controls">
-                <h2>Szimuláció</h2>
-                <p>Az alkalmazás teszteléséhez válassz egy helyszínt:</p>
+                <h2>Helyszín kipróbálása</h2>
+                <p>Válassz egy helyszínt a teszteléshez:</p>
                 <button id="simulate-buda">Budai Vár</button>
                 <button id="simulate-halaszbastya">Halászbástya</button>
                 <button id="simulate-lanchid">Lánchíd</button>
-                <button id="simulate-hegy">Hegyvidék</button>
-                <button id="reset-position">Visszaállítás</button>
             </div>
         </div>
         
         <footer>
-            <p>© 2023 GPS Felfedező App | Valós idejű helymeghatározással</p>
+            <p>© 2023 GPS Felfedező App | Fedezd fel a világot!</p>
         </footer>
     </div>
 
@@ -426,20 +449,6 @@
                 ],
                 description: "A Széchenyi lánchíd Budapest legrégebbi és legismertebb hidja, amely Budát és Pestet köti össze. 1849-ben adták át a forgalomnak. Az úttörő mérnöki alkotás ma is a város egyik szimbóluma.",
                 audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3"
-            },
-            {
-                id: 4,
-                name: "Hegyvidéki Kilátó",
-                lat: 47.5200,
-                lng: 19.0200,
-                radius: 70,
-                images: [
-                    "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Erzsébet-kilátó_3.jpg/800px-Erzsébet-kilátó_3.jpg",
-                    "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2d/Erzsebetkilato_1.jpg/800px-Erzsebetkilato_1.jpg",
-                    "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Erzs%C3%A9bet-kil%C3%A1t%C3%B3_2017.jpg/800px-Erzs%C3%A9bet-kil%C3%A1t%C3%B3_2017.jpg"
-                ],
-                description: "A János-hegy tetején található Erzsébet-kilátó Budapest legmagasabb pontja, ahondon gyönyörű kilátás nyílik a városra. 1910-ben épült és nevezetessége máig őrzi varázsát.",
-                audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3"
             }
         ];
 
@@ -448,13 +457,14 @@
         let watchId = null;
         let currentPoi = null;
         let currentImageIndex = 0;
-        let typingInterval = null;
+        let closestPoi = null;
 
         // Elemek kiválasztása
-        const locationStatus = document.getElementById('location-status');
-        const currentCoords = document.getElementById('current-coords');
-        const nearestPoi = document.getElementById('nearest-poi');
-        const gpsAccuracy = document.getElementById('gps-accuracy');
+        const distanceValue = document.getElementById('distance-value');
+        const directionArrow = document.getElementById('direction-arrow');
+        const directionText = document.getElementById('direction-text');
+        const closestPoiName = document.getElementById('closest-poi-name');
+        const closestPoiDistance = document.getElementById('closest-poi-distance');
         const poiInfo = document.getElementById('poi-info');
         const galleryMainImage = document.getElementById('gallery-main-image');
         const galleryThumbnails = document.getElementById('gallery-thumbnails');
@@ -464,53 +474,89 @@
         const poiDescription = document.getElementById('poi-description');
         const poiAudio = document.getElementById('poi-audio');
         const closePoiButton = document.getElementById('close-poi');
-        const poiItemsContainer = document.getElementById('poi-items');
 
         // Szimulációs gombok
         const simulateBuda = document.getElementById('simulate-buda');
         const simulateHalaszbastya = document.getElementById('simulate-halaszbastya');
         const simulateLanchid = document.getElementById('simulate-lanchid');
-        const simulateHegy = document.getElementById('simulate-hegy');
-        const resetPosition = document.getElementById('reset-position');
 
-        // Szöveg animáció - gépelés hatás
-        function typeText(element, text, speed = 30) {
-            let i = 0;
-            element.innerHTML = '';
+        // Irány és távolság frissítése
+        function updateDirectionAndDistance() {
+            if (!currentPosition || !closestPoi) return;
             
-            if (typingInterval) {
-                clearInterval(typingInterval);
+            const { latitude, longitude } = currentPosition.coords;
+            const distance = calculateDistance(
+                latitude, longitude, 
+                closestPoi.lat, closestPoi.lng
+            );
+            
+            // Távolság frissítése
+            distanceValue.textContent = Math.round(distance);
+            
+            // Irány frissítése
+            const bearing = calculateBearing(
+                latitude, longitude,
+                closestPoi.lat, closestPoi.lng
+            );
+            
+            updateDirectionArrow(bearing);
+            
+            // Szöveges információ frissítése
+            closestPoiName.textContent = closestPoi.name;
+            closestPoiDistance.textContent = `${Math.round(distance)} méterre tőled`;
+        }
+        
+        // Iránymutató frissítése
+        function updateDirectionArrow(bearing) {
+            // Szög normalizálása 0-360 fok között
+            const normalizedBearing = (bearing + 360) % 360;
+            
+            // Irány szöveges leírása
+            let direction = "";
+            if (normalizedBearing >= 337.5 || normalizedBearing < 22.5) {
+                direction = "Észak";
+                directionArrow.className = "fas fa-arrow-up direction-arrow";
+            } else if (normalizedBearing >= 22.5 && normalizedBearing < 67.5) {
+                direction = "Északkelet";
+                directionArrow.className = "fas fa-arrow-up-right direction-arrow";
+            } else if (normalizedBearing >= 67.5 && normalizedBearing < 112.5) {
+                direction = "Kelet";
+                directionArrow.className = "fas fa-arrow-right direction-arrow";
+            } else if (normalizedBearing >= 112.5 && normalizedBearing < 157.5) {
+                direction = "Délkelet";
+                directionArrow.className = "fas fa-arrow-down-right direction-arrow";
+            } else if (normalizedBearing >= 157.5 && normalizedBearing < 202.5) {
+                direction = "Dél";
+                directionArrow.className = "fas fa-arrow-down direction-arrow";
+            } else if (normalizedBearing >= 202.5 && normalizedBearing < 247.5) {
+                direction = "Délnyugat";
+                directionArrow.className = "fas fa-arrow-down-left direction-arrow";
+            } else if (normalizedBearing >= 247.5 && normalizedBearing < 292.5) {
+                direction = "Nyugat";
+                directionArrow.className = "fas fa-arrow-left direction-arrow";
+            } else if (normalizedBearing >= 292.5 && normalizedBearing < 337.5) {
+                direction = "Északnyugat";
+                directionArrow.className = "fas fa-arrow-up-left direction-arrow";
             }
             
-            typingInterval = setInterval(() => {
-                if (i < text.length) {
-                    element.innerHTML += text.charAt(i);
-                    i++;
-                } else {
-                    clearInterval(typingInterval);
-                }
-            }, speed);
+            directionText.textContent = direction + " irányában";
         }
-
-        // POI lista generálása
-        function generatePoiList() {
-            poiItemsContainer.innerHTML = '';
-            pointsOfInterest.forEach(poi => {
-                const poiElement = document.createElement('div');
-                poiElement.className = 'poi-item';
-                poiElement.innerHTML = `
-                    <div class="poi-icon">${poi.id}</div>
-                    <div class="poi-item-content">
-                        <h3>${poi.name}</h3>
-                        <p>Koordináták: ${poi.lat.toFixed(6)}, ${poi.lng.toFixed(6)}</p>
-                        <p><small>Sugár: ${poi.radius} m | ${poi.images.length} kép</small></p>
-                    </div>
-                `;
-                poiElement.addEventListener('click', () => {
-                    showPoiInfo(poi);
-                });
-                poiItemsContainer.appendChild(poiElement);
-            });
+        
+        // Irányszög számítása két koordináta között
+        function calculateBearing(lat1, lon1, lat2, lon2) {
+            const φ1 = deg2rad(lat1);
+            const φ2 = deg2rad(lat2);
+            const Δλ = deg2rad(lon2 - lon1);
+            
+            const y = Math.sin(Δλ) * Math.cos(φ2);
+            const x = Math.cos(φ1) * Math.sin(φ2) - Math.sin(φ1) * Math.cos(φ2) * Math.cos(Δλ);
+            const θ = Math.atan2(y, x);
+            
+            return (rad2deg(θ) + 360) % 360;
+        }
+        
+        function rad2deg(rad) {
+            return rad * 180 / Math.PI;
         }
 
         // Képgaléria inicializálása
@@ -568,39 +614,19 @@
         // Helymeghatározás inicializálása
         function initGeolocation() {
             if (!navigator.geolocation) {
-                locationStatus.textContent = "A böngészője nem támogatja a helymeghatározást.";
+                directionText.textContent = "A böngésző nem támogatja a helymeghatározást";
                 return;
             }
-            
-            locationStatus.textContent = "Helymeghatározás aktív...";
-            locationStatus.classList.add('pulse');
-            
-            // Aktuális pozíció lekérése
-            navigator.geolocation.getCurrentPosition(
-                position => {
-                    currentPosition = position;
-                    updatePositionInfo();
-                    checkForNearbyPois();
-                },
-                error => {
-                    handleLocationError(error);
-                },
-                {
-                    enableHighAccuracy: true,
-                    timeout: 10000,
-                    maximumAge: 0
-                }
-            );
             
             // Pozíció változás figyelése
             watchId = navigator.geolocation.watchPosition(
                 position => {
                     currentPosition = position;
-                    updatePositionInfo();
                     checkForNearbyPois();
+                    updateDirectionAndDistance();
                 },
                 error => {
-                    handleLocationError(error);
+                    directionText.textContent = "Helymeghatározás nem elérhető";
                 },
                 {
                     enableHighAccuracy: true,
@@ -610,22 +636,13 @@
             );
         }
 
-        // Pozíció információk frissítése
-        function updatePositionInfo() {
-            if (currentPosition) {
-                const { latitude, longitude, accuracy } = currentPosition.coords;
-                currentCoords.textContent = `Jelenlegi koordináták: ${latitude.toFixed(6)}, ${longitude.toFixed(6)}`;
-                gpsAccuracy.textContent = `GPS pontosság: ${accuracy.toFixed(1)} méter`;
-            }
-        }
-
         // Közeledben lévő POI-k ellenőrzése
         function checkForNearbyPois() {
             if (!currentPosition) return;
             
             const { latitude, longitude } = currentPosition.coords;
-            let closestPoi = null;
             let minDistance = Infinity;
+            let newClosestPoi = null;
             
             pointsOfInterest.forEach(poi => {
                 const distance = calculateDistance(
@@ -635,49 +652,17 @@
                 
                 if (distance < minDistance) {
                     minDistance = distance;
-                    closestPoi = poi;
+                    newClosestPoi = poi;
                 }
                 
                 // Ha a felhasználó elég közel van egy POI-hoz
                 if (distance <= poi.radius && currentPoi !== poi.id) {
                     currentPoi = poi.id;
                     showPoiInfo(poi);
-                    // Értesítés megjelenítése
-                    showNotification(`Beléptél a(z) ${poi.name} területére!`);
                 }
             });
             
-            if (closestPoi) {
-                const distance = calculateDistance(
-                    latitude, longitude, 
-                    closestPoi.lat, closestPoi.lng
-                );
-                nearestPoi.textContent = `Legközelebbi érdekes pont: ${closestPoi.name} (${distance.toFixed(0)} m)`;
-            }
-        }
-
-        // Értesítés megjelenítése
-        function showNotification(message) {
-            // Egyszerű értesítés
-            if (Notification.permission === 'granted') {
-                new Notification('Felfedező App', {
-                    body: message,
-                    icon: 'https://example.com/icon.png'
-                });
-            } else if (Notification.permission !== 'denied') {
-                Notification.requestPermission().then(permission => {
-                    if (permission === 'granted') {
-                        new Notification('Felfedező App', {
-                            body: message,
-                            icon: 'https://example.com/icon.png'
-                        });
-                    }
-                });
-            }
-            
-            // Hangjelzés
-            const audio = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-positive-notification-951.mp3');
-            audio.play();
+            closestPoi = newClosestPoi;
         }
 
         // Két koordináta közötti távolság számítása (Haversine formula)
@@ -701,10 +686,8 @@
         // POI információk megjelenítése
         function showPoiInfo(poi) {
             poiTitle.textContent = poi.name;
+            poiDescription.textContent = poi.description;
             poiAudio.src = poi.audio;
-            
-            // Szöveg animáció indítása
-            typeText(poiDescription, poi.description);
             
             initGallery(poi);
             poiInfo.classList.add('active');
@@ -712,32 +695,9 @@
             // Hang automatikus lejátszása
             setTimeout(() => {
                 poiAudio.play().catch(e => {
-                    console.log("Automatikus hanglejátszás nem engedélyezett: ", e);
+                    console.log("Automatikus hanglejátszás nem engedélyezett");
                 });
-            }, 1000);
-        }
-
-        // Helymeghatározási hibakezelés
-        function handleLocationError(error) {
-            switch(error.code) {
-                case error.PERMISSION_DENIED:
-                    locationStatus.textContent = "A felhasználó nem adta meg a helymeghatározási engedélyt.";
-                    break;
-                case error.POSITION_UNAVAILABLE:
-                    locationStatus.textContent = "A helyadatok nem elérhetők.";
-                    break;
-                case error.TIMEOUT:
-                    locationStatus.textContent = "A helymeghatározás túllépte az időkeretet.";
-                    break;
-                case error.UNKNOWN_ERROR:
-                    locationStatus.textContent = "Ismeretlen hiba történt.";
-                    break;
-            }
-            
-            locationStatus.classList.remove('pulse');
-            
-            // Szimuláció engedélyezése, ha a GPS nem elérhető
-            document.querySelector('.simulation-controls').style.display = 'block';
+            }, 500);
         }
 
         // Szimulációs funkciók
@@ -753,30 +713,6 @@
             simulatePosition(47.4986, 19.0439, "Széchenyi Lánchíd");
         });
 
-        simulateHegy.addEventListener('click', () => {
-            simulatePosition(47.5200, 19.0200, "Hegyvidéki Kilátó");
-        });
-
-        resetPosition.addEventListener('click', () => {
-            if (watchId !== null) {
-                navigator.geolocation.clearWatch(watchId);
-            }
-            if (typingInterval) {
-                clearInterval(typingInterval);
-            }
-            currentPosition = null;
-            currentPoi = null;
-            locationStatus.textContent = "Helymeghatározás visszaállítva.";
-            locationStatus.classList.remove('pulse');
-            currentCoords.textContent = "Jelenlegi koordináták: ";
-            nearestPoi.textContent = "Legközelebbi érdekes pont: ";
-            gpsAccuracy.textContent = "GPS pontosság: ";
-            poiInfo.classList.remove('active');
-            
-            // Újrakezdi a helymeghatározást
-            initGeolocation();
-        });
-
         function simulatePosition(lat, lng, name) {
             // Szimuláljunk egy pozíciót
             currentPosition = {
@@ -787,39 +723,19 @@
                 }
             };
             
-            updatePositionInfo();
             checkForNearbyPois();
-            
-            locationStatus.textContent = `Szimulált hely: ${name}`;
-            locationStatus.classList.add('pulse');
+            updateDirectionAndDistance();
         }
 
         // Bezárás gomb eseménykezelő
         closePoiButton.addEventListener('click', () => {
             poiInfo.classList.remove('active');
-            if (typingInterval) {
-                clearInterval(typingInterval);
-            }
+            poiAudio.pause();
         });
-
-        // Értesítési engedély kérése
-        function requestNotificationPermission() {
-            if ('Notification' in window) {
-                Notification.requestPermission();
-            }
-        }
 
         // Alkalmazás inicializálása
         function initApp() {
-            generatePoiList();
             initGeolocation();
-            requestNotificationPermission();
-            
-            // Ha a böngésző nem támogatja a geolokációt, megjelenítjük a szimulációs vezérlőket
-            if (!navigator.geolocation) {
-                document.querySelector('.simulation-controls').style.display = 'block';
-                locationStatus.textContent = "A böngészője nem támogatja a helymeghatározást. Használja a szimulációs gombokat.";
-            }
         }
 
         // Alkalmazás indítása
