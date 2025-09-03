@@ -52,60 +52,60 @@
             border-bottom: 1px solid #e9ecef;
         }
         
+        .welcome-message {
+            text-align: center;
+            padding: 10px;
+            font-size: 1.1rem;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        
         .distance-info {
             display: flex;
             flex-direction: column;
             align-items: center;
-            margin: 20px 0;
+            margin: 10px 0;
         }
         
-        .distance-circle {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            background: #3498db;
-            color: white;
+        .distance-item {
             display: flex;
-            flex-direction: column;
-            justify-content: center;
+            justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
-            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+            width: 100%;
+            padding: 12px 15px;
+            margin: 8px 0;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .distance-item.active {
+            background: #e3f2fd;
+            box-shadow: 0 5px 15px rgba(33, 150, 243, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .distance-item.reached {
+            background: #e8f5e9;
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
+        }
+        
+        .poi-name {
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: #2c3e50;
         }
         
         .distance-value {
-            font-size: 2rem;
+            font-size: 1.2rem;
             font-weight: bold;
-        }
-        
-        .distance-unit {
-            font-size: 1rem;
-        }
-        
-        .direction-info {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 15px 0;
-        }
-        
-        .direction-arrow {
-            font-size: 3rem;
-            margin: 0 15px;
             color: #3498db;
         }
         
-        .direction-text {
-            font-size: 1.2rem;
-            font-weight: bold;
-        }
-        
-        .closest-poi {
-            margin-top: 20px;
-            padding: 15px;
-            background: #e8f4fc;
-            border-radius: 10px;
-            text-align: center;
+        .distance-unit {
+            font-size: 0.9rem;
+            color: #7f8c8d;
         }
         
         .content {
@@ -207,54 +207,6 @@
             text-align: center;
         }
         
-        .poi-list {
-            margin-top: 30px;
-        }
-        
-        .poi-item {
-            background: white;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 15px;
-            cursor: pointer;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            display: flex;
-            align-items: center;
-        }
-        
-        .poi-item:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-        }
-        
-        .poi-icon {
-            width: 50px;
-            height: 50px;
-            background: #3498db;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-right: 15px;
-            color: white;
-            font-size: 1.5rem;
-        }
-        
-        .poi-item-content {
-            flex: 1;
-        }
-        
-        .poi-item h3 {
-            margin-bottom: 5px;
-            color: #2c3e50;
-        }
-        
-        .poi-item p {
-            color: #7f8c8d;
-            font-size: 0.9rem;
-        }
-        
         .simulation-controls {
             margin-top: 20px;
             padding: 20px;
@@ -323,13 +275,14 @@
                 height: 200px;
             }
             
-            .distance-circle {
-                width: 120px;
-                height: 120px;
+            .distance-item {
+                flex-direction: column;
+                align-items: flex-start;
             }
             
             .distance-value {
-                font-size: 1.5rem;
+                margin-top: 5px;
+                align-self: flex-end;
             }
         }
     </style>
@@ -342,20 +295,13 @@
         </header>
         
         <div class="status">
-            <div class="distance-info">
-                <div class="distance-circle">
-                    <span id="distance-value" class="distance-value">--</span>
-                    <span class="distance-unit">méter</span>
-                </div>
-                <div class="direction-info">
-                    <i id="direction-arrow" class="fas fa-arrow-up direction-arrow"></i>
-                    <span id="direction-text" class="direction-text">Keresés...</span>
-                </div>
+            <div class="welcome-message">
+                <p>Az alkalmazás mutatja a közeledben lévő érdekes helyek távolságát.</p>
+                <p>Amikor egy hely közelébe érsz, itt megjelenik a tartalom.</p>
             </div>
             
-            <div class="closest-poi">
-                <h3 id="closest-poi-name">Legközelebbi érdekes pont</h3>
-                <p id="closest-poi-distance">Az alkalmazás érzékeli a pozíciódat...</p>
+            <div id="distance-container" class="distance-info">
+                <!-- A távolság információk ide fognak kerülni -->
             </div>
         </div>
         
@@ -457,14 +403,9 @@
         let watchId = null;
         let currentPoi = null;
         let currentImageIndex = 0;
-        let closestPoi = null;
 
         // Elemek kiválasztása
-        const distanceValue = document.getElementById('distance-value');
-        const directionArrow = document.getElementById('direction-arrow');
-        const directionText = document.getElementById('direction-text');
-        const closestPoiName = document.getElementById('closest-poi-name');
-        const closestPoiDistance = document.getElementById('closest-poi-distance');
+        const distanceContainer = document.getElementById('distance-container');
         const poiInfo = document.getElementById('poi-info');
         const galleryMainImage = document.getElementById('gallery-main-image');
         const galleryThumbnails = document.getElementById('gallery-thumbnails');
@@ -480,83 +421,36 @@
         const simulateHalaszbastya = document.getElementById('simulate-halaszbastya');
         const simulateLanchid = document.getElementById('simulate-lanchid');
 
-        // Irány és távolság frissítése
-        function updateDirectionAndDistance() {
-            if (!currentPosition || !closestPoi) return;
+        // Távolság információk frissítése
+        function updateDistanceInfo() {
+            if (!currentPosition) return;
             
             const { latitude, longitude } = currentPosition.coords;
-            const distance = calculateDistance(
-                latitude, longitude, 
-                closestPoi.lat, closestPoi.lng
-            );
             
-            // Távolság frissítése
-            distanceValue.textContent = Math.round(distance);
+            // Távolság információk létrehozása/frissítése
+            distanceContainer.innerHTML = '';
             
-            // Irány frissítése
-            const bearing = calculateBearing(
-                latitude, longitude,
-                closestPoi.lat, closestPoi.lng
-            );
-            
-            updateDirectionArrow(bearing);
-            
-            // Szöveges információ frissítése
-            closestPoiName.textContent = closestPoi.name;
-            closestPoiDistance.textContent = `${Math.round(distance)} méterre tőled`;
-        }
-        
-        // Iránymutató frissítése
-        function updateDirectionArrow(bearing) {
-            // Szög normalizálása 0-360 fok között
-            const normalizedBearing = (bearing + 360) % 360;
-            
-            // Irány szöveges leírása
-            let direction = "";
-            if (normalizedBearing >= 337.5 || normalizedBearing < 22.5) {
-                direction = "Észak";
-                directionArrow.className = "fas fa-arrow-up direction-arrow";
-            } else if (normalizedBearing >= 22.5 && normalizedBearing < 67.5) {
-                direction = "Északkelet";
-                directionArrow.className = "fas fa-arrow-up-right direction-arrow";
-            } else if (normalizedBearing >= 67.5 && normalizedBearing < 112.5) {
-                direction = "Kelet";
-                directionArrow.className = "fas fa-arrow-right direction-arrow";
-            } else if (normalizedBearing >= 112.5 && normalizedBearing < 157.5) {
-                direction = "Délkelet";
-                directionArrow.className = "fas fa-arrow-down-right direction-arrow";
-            } else if (normalizedBearing >= 157.5 && normalizedBearing < 202.5) {
-                direction = "Dél";
-                directionArrow.className = "fas fa-arrow-down direction-arrow";
-            } else if (normalizedBearing >= 202.5 && normalizedBearing < 247.5) {
-                direction = "Délnyugat";
-                directionArrow.className = "fas fa-arrow-down-left direction-arrow";
-            } else if (normalizedBearing >= 247.5 && normalizedBearing < 292.5) {
-                direction = "Nyugat";
-                directionArrow.className = "fas fa-arrow-left direction-arrow";
-            } else if (normalizedBearing >= 292.5 && normalizedBearing < 337.5) {
-                direction = "Északnyugat";
-                directionArrow.className = "fas fa-arrow-up-left direction-arrow";
-            }
-            
-            directionText.textContent = direction + " irányában";
-        }
-        
-        // Irányszög számítása két koordináta között
-        function calculateBearing(lat1, lon1, lat2, lon2) {
-            const φ1 = deg2rad(lat1);
-            const φ2 = deg2rad(lat2);
-            const Δλ = deg2rad(lon2 - lon1);
-            
-            const y = Math.sin(Δλ) * Math.cos(φ2);
-            const x = Math.cos(φ1) * Math.sin(φ2) - Math.sin(φ1) * Math.cos(φ2) * Math.cos(Δλ);
-            const θ = Math.atan2(y, x);
-            
-            return (rad2deg(θ) + 360) % 360;
-        }
-        
-        function rad2deg(rad) {
-            return rad * 180 / Math.PI;
+            pointsOfInterest.forEach(poi => {
+                const distance = calculateDistance(
+                    latitude, longitude, 
+                    poi.lat, poi.lng
+                );
+                
+                const distanceElement = document.createElement('div');
+                distanceElement.className = 'distance-item';
+                
+                // Ha a felhasználó a hatósugáron belül van
+                if (distance <= poi.radius) {
+                    distanceElement.classList.add('reached');
+                }
+                
+                distanceElement.innerHTML = `
+                    <span class="poi-name">${poi.name}</span>
+                    <span class="distance-value">${Math.round(distance)} <span class="distance-unit">m</span></span>
+                `;
+                
+                distanceContainer.appendChild(distanceElement);
+            });
         }
 
         // Képgaléria inicializálása
@@ -614,7 +508,7 @@
         // Helymeghatározás inicializálása
         function initGeolocation() {
             if (!navigator.geolocation) {
-                directionText.textContent = "A böngésző nem támogatja a helymeghatározást";
+                distanceContainer.innerHTML = '<p>A böngésző nem támogatja a helymeghatározást</p>';
                 return;
             }
             
@@ -623,10 +517,10 @@
                 position => {
                     currentPosition = position;
                     checkForNearbyPois();
-                    updateDirectionAndDistance();
+                    updateDistanceInfo();
                 },
                 error => {
-                    directionText.textContent = "Helymeghatározás nem elérhető";
+                    distanceContainer.innerHTML = '<p>Helymeghatározás nem elérhető</p>';
                 },
                 {
                     enableHighAccuracy: true,
@@ -641,8 +535,6 @@
             if (!currentPosition) return;
             
             const { latitude, longitude } = currentPosition.coords;
-            let minDistance = Infinity;
-            let newClosestPoi = null;
             
             pointsOfInterest.forEach(poi => {
                 const distance = calculateDistance(
@@ -650,19 +542,12 @@
                     poi.lat, poi.lng
                 );
                 
-                if (distance < minDistance) {
-                    minDistance = distance;
-                    newClosestPoi = poi;
-                }
-                
                 // Ha a felhasználó elég közel van egy POI-hoz
                 if (distance <= poi.radius && currentPoi !== poi.id) {
                     currentPoi = poi.id;
                     showPoiInfo(poi);
                 }
             });
-            
-            closestPoi = newClosestPoi;
         }
 
         // Két koordináta közötti távolság számítása (Haversine formula)
@@ -724,7 +609,7 @@
             };
             
             checkForNearbyPois();
-            updateDirectionAndDistance();
+            updateDistanceInfo();
         }
 
         // Bezárás gomb eseménykezelő
