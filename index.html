@@ -148,6 +148,15 @@
             font-size: 1.1rem;
             line-height: 1.6;
             color: #555;
+            min-height: 120px;
+            overflow: hidden;
+        }
+        
+        .typing-text {
+            border-right: 2px solid #3498db;
+            white-space: pre-wrap;
+            overflow: hidden;
+            display: inline-block;
         }
         
         .audio-controls {
@@ -262,8 +271,24 @@
             100% { transform: scale(1); }
         }
         
+        @keyframes typing {
+            from { width: 0; }
+            to { width: 100%; }
+        }
+        
+        @keyframes blink {
+            50% { border-color: transparent; }
+        }
+        
         .pulse {
             animation: pulse 2s infinite;
+        }
+        
+        .typing-animation {
+            overflow: hidden;
+            border-right: 2px solid #3498db;
+            white-space: nowrap;
+            animation: typing 3s steps(40, end), blink 0.75s step-end infinite;
         }
         
         @media (max-width: 600px) {
@@ -318,7 +343,7 @@
                 <h2 id="poi-title" class="poi-title"></h2>
                 <p id="poi-description" class="poi-description"></p>
                 <div class="audio-controls">
-                    <audio id="poi-audio" controls></audio>
+                    <audio id="poi-audio" controls autoplay></audio>
                 </div>
                 <button id="close-poi">Bezárás</button>
             </div>
@@ -423,6 +448,7 @@
         let watchId = null;
         let currentPoi = null;
         let currentImageIndex = 0;
+        let typingInterval = null;
 
         // Elemek kiválasztása
         const locationStatus = document.getElementById('location-status');
@@ -446,6 +472,25 @@
         const simulateLanchid = document.getElementById('simulate-lanchid');
         const simulateHegy = document.getElementById('simulate-hegy');
         const resetPosition = document.getElementById('reset-position');
+
+        // Szöveg animáció - gépelés hatás
+        function typeText(element, text, speed = 30) {
+            let i = 0;
+            element.innerHTML = '';
+            
+            if (typingInterval) {
+                clearInterval(typingInterval);
+            }
+            
+            typingInterval = setInterval(() => {
+                if (i < text.length) {
+                    element.innerHTML += text.charAt(i);
+                    i++;
+                } else {
+                    clearInterval(typingInterval);
+                }
+            }, speed);
+        }
 
         // POI lista generálása
         function generatePoiList() {
@@ -614,15 +659,25 @@
         // Értesítés megjelenítése
         function showNotification(message) {
             // Egyszerű értesítés
-            alert(message);
-            
-            // Vagy komplexebb értesítés megjelenítése
-            if ('Notification' in window && Notification.permission === 'granted') {
+            if (Notification.permission === 'granted') {
                 new Notification('Felfedező App', {
                     body: message,
                     icon: 'https://example.com/icon.png'
                 });
+            } else if (Notification.permission !== 'denied') {
+                Notification.requestPermission().then(permission => {
+                    if (permission === 'granted') {
+                        new Notification('Felfedező App', {
+                            body: message,
+                            icon: 'https://example.com/icon.png'
+                        });
+                    }
+                });
             }
+            
+            // Hangjelzés
+            const audio = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-positive-notification-951.mp3');
+            audio.play();
         }
 
         // Két koordináta közötti távolság számítása (Haversine formula)
@@ -646,11 +701,20 @@
         // POI információk megjelenítése
         function showPoiInfo(poi) {
             poiTitle.textContent = poi.name;
-            poiDescription.textContent = poi.description;
             poiAudio.src = poi.audio;
+            
+            // Szöveg animáció indítása
+            typeText(poiDescription, poi.description);
             
             initGallery(poi);
             poiInfo.classList.add('active');
+            
+            // Hang automatikus lejátszása
+            setTimeout(() => {
+                poiAudio.play().catch(e => {
+                    console.log("Automatikus hanglejátszás nem engedélyezett: ", e);
+                });
+            }, 1000);
         }
 
         // Helymeghatározási hibakezelés
@@ -697,6 +761,9 @@
             if (watchId !== null) {
                 navigator.geolocation.clearWatch(watchId);
             }
+            if (typingInterval) {
+                clearInterval(typingInterval);
+            }
             currentPosition = null;
             currentPoi = null;
             locationStatus.textContent = "Helymeghatározás visszaállítva.";
@@ -730,6 +797,9 @@
         // Bezárás gomb eseménykezelő
         closePoiButton.addEventListener('click', () => {
             poiInfo.classList.remove('active');
+            if (typingInterval) {
+                clearInterval(typingInterval);
+            }
         });
 
         // Értesítési engedély kérése
