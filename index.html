@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Többképes Felfedező Utazó</title>
+    <title>GPS Felfedező App</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -14,7 +14,7 @@
         }
         
         body {
-            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            background: linear-gradient(135deg, #1a2a6c 0%, #b21f1f 50%, #fdbb2d 100%);
             color: #333;
             line-height: 1.6;
             min-height: 100vh;
@@ -25,7 +25,7 @@
         }
         
         .container {
-            max-width: 900px;
+            max-width: 100%;
             width: 100%;
             background: white;
             border-radius: 15px;
@@ -229,6 +229,20 @@
             transform: translateY(-2px);
         }
         
+        .gps-status {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 10px;
+            font-size: 1.1rem;
+        }
+        
+        .gps-icon {
+            margin-right: 10px;
+            font-size: 1.5rem;
+            color: #3498db;
+        }
+        
         footer {
             text-align: center;
             padding: 20px;
@@ -240,6 +254,16 @@
         @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
         }
         
         @media (max-width: 600px) {
@@ -266,7 +290,7 @@
 <body>
     <div class="container">
         <header>
-            <h1>Többképes Felfedező Utazó</h1>
+            <h1>GPS Felfedező App</h1>
             <p>Fedezz fel érdekes helyeket a közeledben!</p>
         </header>
         
@@ -274,6 +298,10 @@
             <p id="location-status">Helymeghatározás inicializálása...</p>
             <p id="current-coords">Jelenlegi koordináták: </p>
             <p id="nearest-poi">Legközelebbi érdekes pont: </p>
+            <div class="gps-status">
+                <i class="fas fa-satellite gps-icon"></i>
+                <span id="gps-accuracy">GPS pontosság: </span>
+            </div>
         </div>
         
         <div class="content">
@@ -312,22 +340,36 @@
         </div>
         
         <footer>
-            <p>© 2023 Többképes Felfedező Utazó App | Prototípus</p>
+            <p>© 2023 GPS Felfedező App | Valós idejű helymeghatározással</p>
         </footer>
     </div>
 
     <script>
+        // Koordináta konverzió: 46°14'43.82"É, 20° 9'27.32"K
+        function dmsToDecimal(degrees, minutes, seconds, direction) {
+            let decimal = degrees + minutes / 60 + seconds / 3600;
+            if (direction === 'S' || direction === 'W') {
+                decimal = -decimal;
+            }
+            return decimal;
+        }
+        
+        // Budai Vár koordinátái: 46°14'43.82"É, 20° 9'27.32"K
+        const budaiVarLat = dmsToDecimal(46, 14, 43.82, 'N');
+        const budaiVarLng = dmsToDecimal(20, 9, 27.32, 'E');
+
         // Előre meghatározott érdekes pontok (POI-k) több képpel
         const pointsOfInterest = [
             {
                 id: 1,
                 name: "Budai Vár",
-                lat: 47.4960,
-                lng: 19.0396,
+                lat: budaiVarLat,
+                lng: budaiVarLng,
                 radius: 100,
                 images: [
                     "https://www.hetedhetorszag.hu/parameters/hetedhetorszag/modules/Attractions/documents/attraction/32816/image/9834/large.jpg",
-                    "https://budappest.hu/wp-content/uploads/2024/03/budai-var-budapest-753x586.jpg"
+                    "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/Budavari_palota_2016.jpg/800px-Budavari_palota_2016.jpg",
+                    "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Budapest_-_Buda_Castle2.jpg/800px-Budapest_-_Buda_Castle2.jpg"
                 ],
                 description: "A Budai Várnegyed a Duna jobb partján, a Várhegy tetején terül el. Több mint 700 éves múltra tekint vissza, és Budapest egyik leglátogatottabb nevezetessége. A történelmi palota és a középkori utcák egyedülálló atmoszférát teremtenek.",
                 audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
@@ -386,6 +428,7 @@
         const locationStatus = document.getElementById('location-status');
         const currentCoords = document.getElementById('current-coords');
         const nearestPoi = document.getElementById('nearest-poi');
+        const gpsAccuracy = document.getElementById('gps-accuracy');
         const poiInfo = document.getElementById('poi-info');
         const galleryMainImage = document.getElementById('gallery-main-image');
         const galleryThumbnails = document.getElementById('gallery-thumbnails');
@@ -414,8 +457,8 @@
                     <div class="poi-icon">${poi.id}</div>
                     <div class="poi-item-content">
                         <h3>${poi.name}</h3>
-                        <p>Koordináták: ${poi.lat.toFixed(4)}, ${poi.lng.toFixed(4)} | Sugár: ${poi.radius} m</p>
-                        <p><small>${poi.images.length} kép</small></p>
+                        <p>Koordináták: ${poi.lat.toFixed(6)}, ${poi.lng.toFixed(6)}</p>
+                        <p><small>Sugár: ${poi.radius} m | ${poi.images.length} kép</small></p>
                     </div>
                 `;
                 poiElement.addEventListener('click', () => {
@@ -485,6 +528,7 @@
             }
             
             locationStatus.textContent = "Helymeghatározás aktív...";
+            locationStatus.classList.add('pulse');
             
             // Aktuális pozíció lekérése
             navigator.geolocation.getCurrentPosition(
@@ -495,6 +539,11 @@
                 },
                 error => {
                     handleLocationError(error);
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0
                 }
             );
             
@@ -510,8 +559,8 @@
                 },
                 {
                     enableHighAccuracy: true,
-                    timeout: 5000,
-                    maximumAge: 0
+                    timeout: 10000,
+                    maximumAge: 60000
                 }
             );
         }
@@ -519,8 +568,9 @@
         // Pozíció információk frissítése
         function updatePositionInfo() {
             if (currentPosition) {
-                const { latitude, longitude } = currentPosition.coords;
+                const { latitude, longitude, accuracy } = currentPosition.coords;
                 currentCoords.textContent = `Jelenlegi koordináták: ${latitude.toFixed(6)}, ${longitude.toFixed(6)}`;
+                gpsAccuracy.textContent = `GPS pontosság: ${accuracy.toFixed(1)} méter`;
             }
         }
 
@@ -547,6 +597,8 @@
                 if (distance <= poi.radius && currentPoi !== poi.id) {
                     currentPoi = poi.id;
                     showPoiInfo(poi);
+                    // Értesítés megjelenítése
+                    showNotification(`Beléptél a(z) ${poi.name} területére!`);
                 }
             });
             
@@ -556,6 +608,20 @@
                     closestPoi.lat, closestPoi.lng
                 );
                 nearestPoi.textContent = `Legközelebbi érdekes pont: ${closestPoi.name} (${distance.toFixed(0)} m)`;
+            }
+        }
+
+        // Értesítés megjelenítése
+        function showNotification(message) {
+            // Egyszerű értesítés
+            alert(message);
+            
+            // Vagy komplexebb értesítés megjelenítése
+            if ('Notification' in window && Notification.permission === 'granted') {
+                new Notification('Felfedező App', {
+                    body: message,
+                    icon: 'https://example.com/icon.png'
+                });
             }
         }
 
@@ -604,13 +670,15 @@
                     break;
             }
             
+            locationStatus.classList.remove('pulse');
+            
             // Szimuláció engedélyezése, ha a GPS nem elérhető
             document.querySelector('.simulation-controls').style.display = 'block';
         }
 
         // Szimulációs funkciók
         simulateBuda.addEventListener('click', () => {
-            simulatePosition(47.4960, 19.0396, "Budai Vár");
+            simulatePosition(budaiVarLat, budaiVarLng, "Budai Vár");
         });
 
         simulateHalaszbastya.addEventListener('click', () => {
@@ -632,8 +700,10 @@
             currentPosition = null;
             currentPoi = null;
             locationStatus.textContent = "Helymeghatározás visszaállítva.";
+            locationStatus.classList.remove('pulse');
             currentCoords.textContent = "Jelenlegi koordináták: ";
             nearestPoi.textContent = "Legközelebbi érdekes pont: ";
+            gpsAccuracy.textContent = "GPS pontosság: ";
             poiInfo.classList.remove('active');
             
             // Újrakezdi a helymeghatározást
@@ -654,6 +724,7 @@
             checkForNearbyPois();
             
             locationStatus.textContent = `Szimulált hely: ${name}`;
+            locationStatus.classList.add('pulse');
         }
 
         // Bezárás gomb eseménykezelő
@@ -661,10 +732,18 @@
             poiInfo.classList.remove('active');
         });
 
+        // Értesítési engedély kérése
+        function requestNotificationPermission() {
+            if ('Notification' in window) {
+                Notification.requestPermission();
+            }
+        }
+
         // Alkalmazás inicializálása
         function initApp() {
             generatePoiList();
             initGeolocation();
+            requestNotificationPermission();
             
             // Ha a böngésző nem támogatja a geolokációt, megjelenítjük a szimulációs vezérlőket
             if (!navigator.geolocation) {
@@ -678,4 +757,3 @@
     </script>
 </body>
 </html>
-
