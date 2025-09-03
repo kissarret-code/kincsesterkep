@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Többképes Felfedező Utazó</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .container {
+            max-width: 900px;
+            width: 100%;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+        
+        header {
+            text-align: center;
+            padding: 20px;
+            background: #2c3e50;
+            color: white;
+        }
+        
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+        }
+        
+        .status {
+            background-color: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .status p {
+            margin: 10px 0;
+            font-size: 1.1rem;
+        }
+        
+        .content {
+            padding: 20px;
+        }
+        
+        .poi-info {
+            display: none;
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .poi-info.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .image-gallery {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        
+        .gallery-main-image {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .gallery-thumbnails {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+        }
+        
+        .gallery-thumbnail {
+            width: 80px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 5px;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.3s ease;
+        }
+        
+        .gallery-thumbnail:hover, .gallery-thumbnail.active {
+            opacity: 1;
+        }
+        
+        .gallery-nav {
+            position: absolute;
+            top: 50%;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            transform: translateY(-50%);
+            padding: 0 10px;
+        }
+        
+        .gallery-btn {
+            background: rgba(255, 255, 255, 0.8);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.2rem;
+            color: #2c3e50;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        
+        .poi-title {
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        
+        .poi-description {
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: #555;
+        }
+        
+        .audio-controls {
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .poi-list {
+            margin-top: 30px;
+        }
+        
+        .poi-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            align-items: center;
+        }
+        
+        .poi-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .poi-icon {
+            width: 50px;
+            height: 50px;
+            background: #3498db;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 15px;
+            color: white;
+            font-size: 1.5rem;
+        }
+        
+        .poi-item-content {
+            flex: 1;
+        }
+        
+        .poi-item h3 {
+            margin-bottom: 5px;
+            color: #2c3e50;
+        }
+        
+        .poi-item p {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+        
+        .simulation-controls {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            margin: 0 10px;
+            font-size: 1rem;
+            transition: background 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 4px 8px rgba(52, 152, 219, 0.3);
+        }
+        
+        button:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #7f8c8d;
+            background: #f8f9fa;
+            border-top: 1px solid #e9ecef;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                border-radius: 10px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            button {
+                display: block;
+                width: 100%;
+                margin: 10px 0;
+            }
+            
+            .gallery-main-image {
+                height: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Többképes Felfedező Utazó</h1>
+            <p>Fedezz fel érdekes helyeket a közeledben!</p>
+        </header>
+        
+        <div class="status">
+            <p id="location-status">Helymeghatározás inicializálása...</p>
+            <p id="current-coords">Jelenlegi koordináták: </p>
+            <p id="nearest-poi">Legközelebbi érdekes pont: </p>
+        </div>
+        
+        <div class="content">
+            <div id="poi-info" class="poi-info">
+                <div class="image-gallery">
+                    <img id="gallery-main-image" class="gallery-main-image" src="" alt="POI image">
+                    <div class="gallery-nav">
+                        <button class="gallery-btn" id="prev-btn"><i class="fas fa-chevron-left"></i></button>
+                        <button class="gallery-btn" id="next-btn"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                    <div class="gallery-thumbnails" id="gallery-thumbnails"></div>
+                </div>
+                
+                <h2 id="poi-title" class="poi-title"></h2>
+                <p id="poi-description" class="poi-description"></p>
+                <div class="audio-controls">
+                    <audio id="poi-audio" controls></audio>
+                </div>
+                <button id="close-poi">Bezárás</button>
+            </div>
+            
+            <div class="poi-list">
+                <h2>Közeledben lévő érdekes pontok</h2>
+                <div id="poi-items"></div>
+            </div>
+            
+            <div class="simulation-controls">
+                <h2>Szimuláció</h2>
+                <p>Az alkalmazás teszteléséhez válassz egy helyszínt:</p>
+                <button id="simulate-buda">Budai Vár</button>
+                <button id="simulate-halaszbastya">Halászbástya</button>
+                <button id="simulate-lanchid">Lánchíd</button>
+                <button id="simulate-hegy">Hegyvidék</button>
+                <button id="reset-position">Visszaállítás</button>
+            </div>
+        </div>
+        
+        <footer>
+            <p>© 2023 Többképes Felfedező Utazó App | Prototípus</p>
+        </footer>
+    </div>
+
+    <script>
+        // Előre meghatározott érdekes pontok (POI-k) több képpel
+        const pointsOfInterest = [
+            {
+                id: 1,
+                name: "Budai Vár",
+                lat: 47.4960,
+                lng: 19.0396,
+                radius: 100,
+                images: [
+                    "https://www.hetedhetorszag.hu/parameters/hetedhetorszag/modules/Attractions/documents/attraction/32816/image/9834/large.jpg",
+                    "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/Budavari_palota_2016.jpg/800px-Budavari_palota_2016.jpg",
+                    "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Budapest_-_Buda_Castle2.jpg/800px-Budapest_-_Buda_Castle2.jpg"
+                ],
+                description: "A Budai Várnegyed a Duna jobb partján, a Várhegy tetején terül el. Több mint 700 éves múltra tekint vissza, és Budapest egyik leglátogatottabb nevezetessége. A történelmi palota és a középkori utcák egyedülálló atmoszférát teremtenek.",
+                audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
+            },
+            {
+                id: 2,
+                name: "Halászbástya",
+                lat: 47.5020,
+                lng: 19.0337,
+                radius: 50,
+                images: [
+                    "https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/Hal%C3%A1szb%C3%A1stya_2017.jpg/800px-Hal%C3%A1szb%C3%A1stya_2017.jpg",
+                    "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3b/Hal%C3%A1szb%C3%A1stya_a_Szenth%C3%A1roms%C3%A1g_szobr%C3%A1val.jpg/800px-Hal%C3%A1szb%C3%A1stya_a_Szenth%C3%A1roms%C3%A1g_szobr%C3%A1val.jpg",
+                    "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Hal%C3%A1szb%C3%A1stya_%282%29.jpg/800px-Hal%C3%A1szb%C3%A1stya_%282%29.jpg"
+                ],
+                description: "A Halászbástya Budapest egyik legismertebb látványossága, a Várnegyedben található. 1905-ben épült, neoromán stílusban. Kilátótornyaiból lenyűgöző panoráma nyílik a városra és a Dunara.",
+                audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3"
+            },
+            {
+                id: 3,
+                name: "Széchenyi Lánchíd",
+                lat: 47.4986,
+                lng: 19.0439,
+                radius: 80,
+                images: [
+                    "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Sz%C3%A9chenyi_Chain_Bridge_%28Budapest%29.jpg/800px-Sz%C3%A9chenyi_Chain_Bridge_%28Budapest%29.jpg",
+                    "https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/2015_Budapest_-_Sz%C3%A9chenyi_L%C3%A1nch%C3%ADd_2.jpg/800px-2015_Budapest_-_Sz%C3%A9chenyi_L%C3%A1nch%C3%ADd_2.jpg",
+                    "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/Budapest_Chain_Bridge_at_night.jpg/800px-Budapest_Chain_Bridge_at_night.jpg"
+                ],
+                description: "A Széchenyi lánchíd Budapest legrégebbi és legismertebb hidja, amely Budát és Pestet köti össze. 1849-ben adták át a forgalomnak. Az úttörő mérnöki alkotás ma is a város egyik szimbóluma.",
+                audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3"
+            },
+            {
+                id: 4,
+                name: "Hegyvidéki Kilátó",
+                lat: 47.5200,
+                lng: 19.0200,
+                radius: 70,
+                images: [
+                    "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Erzsébet-kilátó_3.jpg/800px-Erzsébet-kilátó_3.jpg",
+                    "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2d/Erzsebetkilato_1.jpg/800px-Erzsebetkilato_1.jpg",
+                    "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Erzs%C3%A9bet-kil%C3%A1t%C3%B3_2017.jpg/800px-Erzs%C3%A9bet-kil%C3%A1t%C3%B3_2017.jpg"
+                ],
+                description: "A János-hegy tetején található Erzsébet-kilátó Budapest legmagasabb pontja, ahondon gyönyörű kilátás nyílik a városra. 1910-ben épült és nevezetessége máig őrzi varázsát.",
+                audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3"
+            }
+        ];
+
+        // Alkalmazás állapota
+        let currentPosition = null;
+        let watchId = null;
+        let currentPoi = null;
+        let currentImageIndex = 0;
+
+        // Elemek kiválasztása
+        const locationStatus = document.getElementById('location-status');
+        const currentCoords = document.getElementById('current-coords');
+        const nearestPoi = document.getElementById('nearest-poi');
+        const poiInfo = document.getElementById('poi-info');
+        const galleryMainImage = document.getElementById('gallery-main-image');
+        const galleryThumbnails = document.getElementById('gallery-thumbnails');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const poiTitle = document.getElementById('poi-title');
+        const poiDescription = document.getElementById('poi-description');
+        const poiAudio = document.getElementById('poi-audio');
+        const closePoiButton = document.getElementById('close-poi');
+        const poiItemsContainer = document.getElementById('poi-items');
+
+        // Szimulációs gombok
+        const simulateBuda = document.getElementById('simulate-buda');
+        const simulateHalaszbastya = document.getElementById('simulate-halaszbastya');
+        const simulateLanchid = document.getElementById('simulate-lanchid');
+        const simulateHegy = document.getElementById('simulate-hegy');
+        const resetPosition = document.getElementById('reset-position');
+
+        // POI lista generálása
+        function generatePoiList() {
+            poiItemsContainer.innerHTML = '';
+            pointsOfInterest.forEach(poi => {
+                const poiElement = document.createElement('div');
+                poiElement.className = 'poi-item';
+                poiElement.innerHTML = `
+                    <div class="poi-icon">${poi.id}</div>
+                    <div class="poi-item-content">
+                        <h3>${poi.name}</h3>
+                        <p>Koordináták: ${poi.lat.toFixed(4)}, ${poi.lng.toFixed(4)} | Sugár: ${poi.radius} m</p>
+                        <p><small>${poi.images.length} kép</small></p>
+                    </div>
+                `;
+                poiElement.addEventListener('click', () => {
+                    showPoiInfo(poi);
+                });
+                poiItemsContainer.appendChild(poiElement);
+            });
+        }
+
+        // Képgaléria inicializálása
+        function initGallery(poi) {
+            galleryThumbnails.innerHTML = '';
+            currentImageIndex = 0;
+            
+            if (poi.images && poi.images.length > 0) {
+                galleryMainImage.src = poi.images[0];
+                
+                // Bélyegképek létrehozása
+                poi.images.forEach((image, index) => {
+                    const thumb = document.createElement('img');
+                    thumb.src = image;
+                    thumb.alt = `Thumbnail ${index + 1}`;
+                    thumb.className = 'gallery-thumbnail';
+                    if (index === 0) thumb.classList.add('active');
+                    
+                    thumb.addEventListener('click', () => {
+                        currentImageIndex = index;
+                        updateGallery(poi);
+                    });
+                    
+                    galleryThumbnails.appendChild(thumb);
+                });
+                
+                // Navigációs gombok eseménykezelői
+                prevBtn.onclick = () => {
+                    currentImageIndex = (currentImageIndex - 1 + poi.images.length) % poi.images.length;
+                    updateGallery(poi);
+                };
+                
+                nextBtn.onclick = () => {
+                    currentImageIndex = (currentImageIndex + 1) % poi.images.length;
+                    updateGallery(poi);
+                };
+            }
+        }
+        
+        // Galéria frissítése
+        function updateGallery(poi) {
+            galleryMainImage.src = poi.images[currentImageIndex];
+            
+            // Aktív bélyegkép frissítése
+            const thumbs = galleryThumbnails.querySelectorAll('.gallery-thumbnail');
+            thumbs.forEach((thumb, index) => {
+                if (index === currentImageIndex) {
+                    thumb.classList.add('active');
+                } else {
+                    thumb.classList.remove('active');
+                }
+            });
+        }
+
+        // Helymeghatározás inicializálása
+        function initGeolocation() {
+            if (!navigator.geolocation) {
+                locationStatus.textContent = "A böngészője nem támogatja a helymeghatározást.";
+                return;
+            }
+            
+            locationStatus.textContent = "Helymeghatározás aktív...";
+            
+            // Aktuális pozíció lekérése
+            navigator.geolocation.getCurrentPosition(
+                position => {
+                    currentPosition = position;
+                    updatePositionInfo();
+                    checkForNearbyPois();
+                },
+                error => {
+                    handleLocationError(error);
+                }
+            );
+            
+            // Pozíció változás figyelése
+            watchId = navigator.geolocation.watchPosition(
+                position => {
+                    currentPosition = position;
+                    updatePositionInfo();
+                    checkForNearbyPois();
+                },
+                error => {
+                    handleLocationError(error);
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 5000,
+                    maximumAge: 0
+                }
+            );
+        }
+
+        // Pozíció információk frissítése
+        function updatePositionInfo() {
+            if (currentPosition) {
+                const { latitude, longitude } = currentPosition.coords;
+                currentCoords.textContent = `Jelenlegi koordináták: ${latitude.toFixed(6)}, ${longitude.toFixed(6)}`;
+            }
+        }
+
+        // Közeledben lévő POI-k ellenőrzése
+        function checkForNearbyPois() {
+            if (!currentPosition) return;
+            
+            const { latitude, longitude } = currentPosition.coords;
+            let closestPoi = null;
+            let minDistance = Infinity;
+            
+            pointsOfInterest.forEach(poi => {
+                const distance = calculateDistance(
+                    latitude, longitude, 
+                    poi.lat, poi.lng
+                );
+                
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    closestPoi = poi;
+                }
+                
+                // Ha a felhasználó elég közel van egy POI-hoz
+                if (distance <= poi.radius && currentPoi !== poi.id) {
+                    currentPoi = poi.id;
+                    showPoiInfo(poi);
+                }
+            });
+            
+            if (closestPoi) {
+                const distance = calculateDistance(
+                    latitude, longitude, 
+                    closestPoi.lat, closestPoi.lng
+                );
+                nearestPoi.textContent = `Legközelebbi érdekes pont: ${closestPoi.name} (${distance.toFixed(0)} m)`;
+            }
+        }
+
+        // Két koordináta közötti távolság számítása (Haversine formula)
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371000; // Föld sugara méterben
+            const dLat = deg2rad(lat2 - lat1);
+            const dLon = deg2rad(lon2 - lon1);
+            const a = 
+                Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * 
+                Math.sin(dLon/2) * Math.sin(dLon/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            const distance = R * c;
+            return distance;
+        }
+
+        function deg2rad(deg) {
+            return deg * (Math.PI/180);
+        }
+
+        // POI információk megjelenítése
+        function showPoiInfo(poi) {
+            poiTitle.textContent = poi.name;
+            poiDescription.textContent = poi.description;
+            poiAudio.src = poi.audio;
+            
+            initGallery(poi);
+            poiInfo.classList.add('active');
+        }
+
+        // Helymeghatározási hibakezelés
+        function handleLocationError(error) {
+            switch(error.code) {
+                case error.PERMISSION_DENIED:
+                    locationStatus.textContent = "A felhasználó nem adta meg a helymeghatározási engedélyt.";
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    locationStatus.textContent = "A helyadatok nem elérhetők.";
+                    break;
+                case error.TIMEOUT:
+                    locationStatus.textContent = "A helymeghatározás túllépte az időkeretet.";
+                    break;
+                case error.UNKNOWN_ERROR:
+                    locationStatus.textContent = "Ismeretlen hiba történt.";
+                    break;
+            }
+            
+            // Szimuláció engedélyezése, ha a GPS nem elérhető
+            document.querySelector('.simulation-controls').style.display = 'block';
+        }
+
+        // Szimulációs funkciók
+        simulateBuda.addEventListener('click', () => {
+            simulatePosition(47.4960, 19.0396, "Budai Vár");
+        });
+
+        simulateHalaszbastya.addEventListener('click', () => {
+            simulatePosition(47.5020, 19.0337, "Halászbástya");
+        });
+
+        simulateLanchid.addEventListener('click', () => {
+            simulatePosition(47.4986, 19.0439, "Széchenyi Lánchíd");
+        });
+
+        simulateHegy.addEventListener('click', () => {
+            simulatePosition(47.5200, 19.0200, "Hegyvidéki Kilátó");
+        });
+
+        resetPosition.addEventListener('click', () => {
+            if (watchId !== null) {
+                navigator.geolocation.clearWatch(watchId);
+            }
+            currentPosition = null;
+            currentPoi = null;
+            locationStatus.textContent = "Helymeghatározás visszaállítva.";
+            currentCoords.textContent = "Jelenlegi koordináták: ";
+            nearestPoi.textContent = "Legközelebbi érdekes pont: ";
+            poiInfo.classList.remove('active');
+            
+            // Újrakezdi a helymeghatározást
+            initGeolocation();
+        });
+
+        function simulatePosition(lat, lng, name) {
+            // Szimuláljunk egy pozíciót
+            currentPosition = {
+                coords: {
+                    latitude: lat,
+                    longitude: lng,
+                    accuracy: 10
+                }
+            };
+            
+            updatePositionInfo();
+            checkForNearbyPois();
+            
+            locationStatus.textContent = `Szimulált hely: ${name}`;
+        }
+
+        // Bezárás gomb eseménykezelő
+        closePoiButton.addEventListener('click', () => {
+            poiInfo.classList.remove('active');
+        });
+
+        // Alkalmazás inicializálása
+        function initApp() {
+            generatePoiList();
+            initGeolocation();
+            
+            // Ha a böngésző nem támogatja a geolokációt, megjelenítjük a szimulációs vezérlőket
+            if (!navigator.geolocation) {
+                document.querySelector('.simulation-controls').style.display = 'block';
+                locationStatus.textContent = "A böngészője nem támogatja a helymeghatározást. Használja a szimulációs gombokat.";
+            }
+        }
+
+        // Alkalmazás indítása
+        initApp();
+    </script>
+</body>
+</html>
