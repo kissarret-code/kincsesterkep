@@ -339,7 +339,7 @@
     </div>
 
     <script>
-        // Koordináta konverzió: 46°14'43.82"É, 20° 9'27.32"K
+        // Koordináta konverzió függvény
         function dmsToDecimal(degrees, minutes, seconds, direction) {
             let decimal = degrees + minutes / 60 + seconds / 3600;
             if (direction === 'S' || direction === 'W') {
@@ -351,6 +351,10 @@
         // Budai Vár koordinátái: 46°14'43.82"É, 20° 9'27.32"K
         const budaiVarLat = dmsToDecimal(46, 14, 43.82, 'N');
         const budaiVarLng = dmsToDecimal(20, 9, 27.32, 'E');
+        
+        // Halászbástya koordinátái: 46°15'32.36"É, 20° 9'59.65"K
+        const halaszbastyaLat = dmsToDecimal(46, 15, 32.36, 'N');
+        const halaszbastyaLng = dmsToDecimal(20, 9, 59.65, 'E');
 
         // Előre meghatározott érdekes pontok (POI-k) több képpel
         const pointsOfInterest = [
@@ -371,8 +375,8 @@
             {
                 id: 2,
                 name: "Halászbástya",
-                lat: 47.5020,
-                lng: 19.0337,
+                lat: halaszbastyaLat,
+                lng: halaszbastyaLng,
                 radius: 50,
                 images: [
                     "https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/Hal%C3%A1szb%C3%A1stya_2017.jpg/800px-Hal%C3%A1szb%C3%A1stya_2017.jpg",
@@ -591,7 +595,7 @@
         });
 
         simulateHalaszbastya.addEventListener('click', () => {
-            simulatePosition(47.5020, 19.0337, "Halászbástya");
+            simulatePosition(halaszbastyaLat, halaszbastyaLng, "Halászbástya");
         });
 
         simulateLanchid.addEventListener('click', () => {
