@@ -132,9 +132,56 @@
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         }
         
+        .poi-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .thumbnail-image {
+            width: 120px;
+            height: 90px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-right: 20px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .poi-title {
+            font-size: 2.2rem;
+            color: #2c3e50;
+            flex: 1;
+        }
+        
+        .poi-description {
+            margin-bottom: 25px;
+            font-size: 1.3rem;
+            line-height: 1.8;
+            color: #555;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 10px;
+            text-align: justify;
+        }
+        
+        .audio-controls {
+            margin: 30px 0;
+            text-align: center;
+            padding: 15px;
+            background: #f0f8ff;
+            border-radius: 10px;
+        }
+        
+        .audio-controls audio {
+            width: 100%;
+            height: 50px;
+        }
+        
         .image-gallery {
             position: relative;
-            margin-bottom: 20px;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #eee;
         }
         
         .gallery-main-image {
@@ -196,36 +243,6 @@
         .gallery-btn:hover {
             background: rgba(255, 255, 255, 1);
             transform: scale(1.1);
-        }
-        
-        .poi-title {
-            font-size: 2.2rem;
-            margin-bottom: 20px;
-            color: #2c3e50;
-            border-bottom: 3px solid #3498db;
-            padding-bottom: 12px;
-            text-align: center;
-        }
-        
-        .poi-description {
-            margin-bottom: 25px;
-            font-size: 1.3rem;
-            line-height: 1.8;
-            color: #555;
-            padding: 15px;
-            background: #f9f9f9;
-            border-radius: 10px;
-            text-align: justify;
-        }
-        
-        .audio-controls {
-            margin: 30px 0;
-            text-align: center;
-        }
-        
-        .audio-controls audio {
-            width: 100%;
-            height: 50px;
         }
         
         .distance-info {
@@ -349,6 +366,18 @@
                 font-size: 0.9rem;
             }
             
+            .poi-header {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .thumbnail-image {
+                margin-right: 0;
+                margin-bottom: 15px;
+                width: 100%;
+                max-width: 200px;
+            }
+            
             .gallery-main-image {
                 height: 250px;
             }
@@ -410,6 +439,17 @@
                 
                 <div class="tab-content active" id="poi-tab">
                     <div class="poi-info">
+                        <div class="poi-header">
+                            <img id="thumbnail-image" class="thumbnail-image" src="" alt="POI thumbnail">
+                            <h2 id="poi-title" class="poi-title"></h2>
+                        </div>
+                        
+                        <p id="poi-description" class="poi-description"></p>
+                        
+                        <div class="audio-controls">
+                            <audio id="poi-audio" controls></audio>
+                        </div>
+                        
                         <div class="image-gallery">
                             <img id="gallery-main-image" class="gallery-main-image" src="" alt="POI image">
                             <div class="gallery-nav">
@@ -419,11 +459,6 @@
                             <div class="gallery-thumbnails" id="gallery-thumbnails"></div>
                         </div>
                         
-                        <h2 id="poi-title" class="poi-title"></h2>
-                        <p id="poi-description" class="poi-description"></p>
-                        <div class="audio-controls">
-                            <audio id="poi-audio" controls></audio>
-                        </div>
                         <button id="close-poi">Bezárás</button>
                     </div>
                     
@@ -510,7 +545,7 @@
                 radius: 80,
                 images: [
                     "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Sz%C3%A9chenyi_Chain_Bridge_%28Budapest%29.jpg/800px-Sz%C3%A9chenyi_Chain_Bridge_%28Budapest%29.jpg",
-                    "https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/2015_Budapest_-_Sz%C3%A9chenyi_L%C3%A1nch%C3%ADd_2.jpg/800px-2015_Budapest_-_Sz%C3%A9chenyi_L%C3%A1nch%C3%ADd_2.jpg",
+                    "https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/2015_Budapest_-_Sz%C3%A9chenyi_L%C3%A1nch%C3%ADd_2.jpg/800px-2015_Budapest_-_Sz%C3%A9chenyi_L%C3%A1nch%C3%EDd_2.jpg",
                     "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/Budapest_Chain_Bridge_at_night.jpg/800px-Budapest_Chain_Bridge_at_night.jpg"
                 ],
                 description: "A Széchenyi lánchíd Budapest legrégebbi és legismertebb hidja, amely Budát és Pestet köti össze. 1849-ben adták át a forgalomnak. Az úttörő mérnöki alkotás ma is a város egyik szimbóluma. A hidat Széchenyi István gróf kezdeményezésére építették, és nevével is őt tisztelik. Az építkezés során számos technikai újítást alkalmaztak, és a híd megépítése jelentős nemzeti üggyé vált.",
@@ -531,14 +566,14 @@
         const statusDot = document.getElementById('status-dot');
         const statusText = document.getElementById('status-text');
         const distanceInfo = document.getElementById('distance-info');
-        const poiInfoElement = document.getElementById('poi-info');
+        const thumbnailImage = document.getElementById('thumbnail-image');
+        const poiTitle = document.getElementById('poi-title');
+        const poiDescription = document.getElementById('poi-description');
+        const poiAudio = document.getElementById('poi-audio');
         const galleryMainImage = document.getElementById('gallery-main-image');
         const galleryThumbnails = document.getElementById('gallery-thumbnails');
         const prevBtn = document.getElementById('prev-btn');
         const nextBtn = document.getElementById('next-btn');
-        const poiTitle = document.getElementById('poi-title');
-        const poiDescription = document.getElementById('poi-description');
-        const poiAudio = document.getElementById('poi-audio');
         const closePoiButton = document.getElementById('close-poi');
         const tabs = document.querySelectorAll('.tab');
         const tabContents = document.querySelectorAll('.tab-content');
@@ -632,6 +667,10 @@
             currentImageIndex = 0;
             
             if (poi.images && poi.images.length > 0) {
+                // Bélyegkép beállítása
+                thumbnailImage.src = poi.images[0];
+                
+                // Fő kép beállítása
                 galleryMainImage.src = poi.images[0];
                 
                 // Bélyegképek létrehozása
