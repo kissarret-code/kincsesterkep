@@ -41,6 +41,36 @@
             padding: 15px;
             background: #2c3e50;
             color: white;
+            position: relative;
+        }
+        
+        .nav-status {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+        
+        .nav-status.active {
+            background: rgba(46, 204, 113, 0.3);
+        }
+        
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #e74c3c;
+            margin-right: 5px;
+        }
+        
+        .status-dot.active {
+            background: #2ecc71;
+            animation: pulse 1.5s infinite;
         }
         
         h1 {
@@ -55,24 +85,51 @@
             overflow: hidden;
         }
         
-        .poi-content {
-            flex: 8; /* Még nagyobb részarány a felső résznek */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .tab-container {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+            background: #f8f9fa;
+        }
+        
+        .tab {
+            padding: 15px 20px;
+            cursor: pointer;
+            font-weight: bold;
+            color: #7f8c8d;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .tab.active {
+            color: #3498db;
+            border-bottom: 3px solid #3498db;
+            background: white;
+        }
+        
+        .tab-content {
+            flex: 1;
             overflow-y: auto;
-            padding: 15px;
+            display: none;
+            padding: 20px;
+        }
+        
+        .tab-content.active {
+            display: block;
         }
         
         .poi-info {
-            display: none;
             background: white;
             border-radius: 10px;
             padding: 20px;
             margin-bottom: 15px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        }
-        
-        .poi-info.active {
-            display: block;
-            animation: fadeIn 0.5s ease;
         }
         
         .image-gallery {
@@ -82,7 +139,7 @@
         
         .gallery-main-image {
             width: 100%;
-            height: 400px; /* Még nagyobb kép */
+            height: 350px;
             object-fit: cover;
             border-radius: 10px;
             margin-bottom: 15px;
@@ -97,8 +154,8 @@
         }
         
         .gallery-thumbnail {
-            width: 120px; /* Még nagyobb bélyegképek */
-            height: 90px;
+            width: 100px;
+            height: 75px;
             object-fit: cover;
             border-radius: 5px;
             cursor: pointer;
@@ -123,14 +180,14 @@
         .gallery-btn {
             background: rgba(255, 255, 255, 0.9);
             border: none;
-            width: 60px; /* Még nagyobb gombok */
-            height: 60px;
+            width: 50px;
+            height: 50px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            font-size: 1.8rem; /* Még nagyobb ikonok */
+            font-size: 1.5rem;
             color: #2c3e50;
             box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
             transition: all 0.3s ease;
@@ -142,7 +199,7 @@
         }
         
         .poi-title {
-            font-size: 2.4rem; /* Még nagyobb cím */
+            font-size: 2.2rem;
             margin-bottom: 20px;
             color: #2c3e50;
             border-bottom: 3px solid #3498db;
@@ -152,7 +209,7 @@
         
         .poi-description {
             margin-bottom: 25px;
-            font-size: 1.4rem; /* Még nagyobb szöveg */
+            font-size: 1.3rem;
             line-height: 1.8;
             color: #555;
             padding: 15px;
@@ -167,36 +224,8 @@
         }
         
         .audio-controls audio {
-            width: 100%; /* Teljes szélességű audio lejátszó */
+            width: 100%;
             height: 50px;
-        }
-        
-        .close-btn-container {
-            text-align: center;
-            margin-top: 20px;
-        }
-        
-        #close-poi {
-            background: #e74c3c;
-            padding: 15px 30px;
-            font-size: 1.2rem;
-        }
-        
-        .distance-container {
-            background-color: #f8f9fa;
-            padding: 12px;
-            border-top: 2px solid #e9ecef;
-            flex: 1; /* Kisebb részarány az alsó résznek */
-            max-height: 180px;
-            overflow-y: auto;
-        }
-        
-        .welcome-message {
-            text-align: center;
-            padding: 8px;
-            font-size: 1.1rem;
-            color: #2c3e50;
-            margin-bottom: 8px;
         }
         
         .distance-info {
@@ -209,34 +238,34 @@
             justify-content: space-between;
             align-items: center;
             width: 100%;
-            padding: 10px 12px;
-            margin: 6px 0;
+            padding: 15px;
+            margin: 10px 0;
             background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
             transition: all 0.3s ease;
         }
         
         .distance-item.reached {
             background: #e8f5e9;
-            box-shadow: 0 3px 12px rgba(76, 175, 80, 0.3);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
             transform: scale(1.02);
         }
         
         .poi-name {
             font-weight: bold;
-            font-size: 1.1rem;
+            font-size: 1.3rem;
             color: #2c3e50;
         }
         
         .distance-value {
-            font-size: 1.3rem;
+            font-size: 1.5rem;
             font-weight: bold;
             color: #3498db;
         }
         
         .distance-unit {
-            font-size: 0.9rem;
+            font-size: 1rem;
             color: #7f8c8d;
         }
         
@@ -272,6 +301,13 @@
             transform: translateY(-3px);
         }
         
+        #close-poi {
+            background: #e74c3c;
+            display: block;
+            margin: 20px auto;
+            padding: 12px 25px;
+        }
+        
         footer {
             text-align: center;
             padding: 12px;
@@ -288,12 +324,8 @@
         
         @keyframes pulse {
             0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
+            50% { transform: scale(1.1); }
             100% { transform: scale(1); }
-        }
-        
-        .pulse {
-            animation: pulse 2s infinite;
         }
         
         @media (max-width: 600px) {
@@ -306,33 +338,38 @@
                 font-size: 1.8rem;
             }
             
+            .nav-status {
+                top: 5px;
+                right: 10px;
+                font-size: 0.8rem;
+            }
+            
+            .tab {
+                padding: 12px 15px;
+                font-size: 0.9rem;
+            }
+            
             .gallery-main-image {
-                height: 300px;
+                height: 250px;
             }
             
             .gallery-btn {
-                width: 50px;
-                height: 50px;
-                font-size: 1.5rem;
-            }
-            
-            .gallery-thumbnail {
-                width: 90px;
-                height: 70px;
-            }
-            
-            .poi-title {
-                font-size: 2rem;
-            }
-            
-            .poi-description {
+                width: 40px;
+                height: 40px;
                 font-size: 1.2rem;
             }
             
-            button {
-                display: block;
-                width: 100%;
-                margin: 10px 0;
+            .gallery-thumbnail {
+                width: 80px;
+                height: 60px;
+            }
+            
+            .poi-title {
+                font-size: 1.8rem;
+            }
+            
+            .poi-description {
+                font-size: 1.1rem;
             }
             
             .distance-item {
@@ -344,6 +381,12 @@
                 margin-top: 5px;
                 align-self: flex-end;
             }
+            
+            button {
+                display: block;
+                width: 100%;
+                margin: 10px 0;
+            }
         }
     </style>
 </head>
@@ -352,47 +395,56 @@
         <header>
             <h1>GPS Felfedező App</h1>
             <p>Fedezz fel érdekes helyeket a közeledben!</p>
+            <div class="nav-status" id="nav-status">
+                <div class="status-dot" id="status-dot"></div>
+                <span id="status-text">Navigáció inaktív</span>
+            </div>
         </header>
         
         <div class="content">
-            <div class="poi-content">
-                <div id="poi-info" class="poi-info">
-                    <div class="image-gallery">
-                        <img id="gallery-main-image" class="gallery-main-image" src="" alt="POI image">
-                        <div class="gallery-nav">
-                            <button class="gallery-btn" id="prev-btn"><i class="fas fa-chevron-left"></i></button>
-                            <button class="gallery-btn" id="next-btn"><i class="fas fa-chevron-right"></i></button>
+            <div class="main-content">
+                <div class="tab-container">
+                    <div class="tab active" data-tab="poi">Helyszín információk</div>
+                    <div class="tab" data-tab="distance">Távolságok</div>
+                </div>
+                
+                <div class="tab-content active" id="poi-tab">
+                    <div class="poi-info">
+                        <div class="image-gallery">
+                            <img id="gallery-main-image" class="gallery-main-image" src="" alt="POI image">
+                            <div class="gallery-nav">
+                                <button class="gallery-btn" id="prev-btn"><i class="fas fa-chevron-left"></i></button>
+                                <button class="gallery-btn" id="next-btn"><i class="fas fa-chevron-right"></i></button>
+                            </div>
+                            <div class="gallery-thumbnails" id="gallery-thumbnails"></div>
                         </div>
-                        <div class="gallery-thumbnails" id="gallery-thumbnails"></div>
-                    </div>
-                    
-                    <h2 id="poi-title" class="poi-title"></h2>
-                    <p id="poi-description" class="poi-description"></p>
-                    <div class="audio-controls">
-                        <audio id="poi-audio" controls></audio>
-                    </div>
-                    <div class="close-btn-container">
+                        
+                        <h2 id="poi-title" class="poi-title"></h2>
+                        <p id="poi-description" class="poi-description"></p>
+                        <div class="audio-controls">
+                            <audio id="poi-audio" controls></audio>
+                        </div>
                         <button id="close-poi">Bezárás</button>
                     </div>
+                    
+                    <div class="simulation-controls">
+                        <h2 class="simulation-title">Helyszín kipróbálása</h2>
+                        <p>Válassz egy helyszínt a teszteléshez:</p>
+                        <button id="simulate-buda">Budai Vár</button>
+                        <button id="simulate-halaszbastya">Halászbástya</button>
+                        <button id="simulate-lanchid">Lánchíd</button>
+                    </div>
                 </div>
                 
-                <div class="simulation-controls">
-                    <h2 class="simulation-title">Helyszín kipróbálása</h2>
-                    <p>Válassz egy helyszínt a teszteléshez:</p>
-                    <button id="simulate-buda">Budai Vár</button>
-                    <button id="simulate-halaszbastya">Halászbástya</button>
-                    <button id="simulate-lanchid">Lánchíd</button>
-                </div>
-            </div>
-            
-            <div class="distance-container">
-                <div class="welcome-message">
-                    <p>Az alkalmazás mutatja a közeledben lévő érdekes helyek távolságát.</p>
-                    <p>Amikor egy hely közelébe érsz, itt megjelenik a tartalom.</p>
-                </div>
-                
-                <div id="distance-info" class="distance-info">
-                    <!-- A távolság információk ide fognak kerülni -->
+                <div class="tab-content" id="distance-tab">
+                    <div class="welcome-message">
+                        <h3>Közeledben lévő érdekes helyek</h3>
+                        <p>Az alábbi lista mutatja, hogy milyen messze van a közeledben lévő érdekes helyektől.</p>
+                    </div>
+                    
+                    <div class="distance-info" id="distance-info">
+                        <!-- A távolság információk ide fognak kerülni -->
+                    </div>
                 </div>
             </div>
         </div>
@@ -471,8 +523,12 @@
         let watchId = null;
         let currentPoi = null;
         let currentImageIndex = 0;
+        let isNavigationActive = false;
 
         // Elemek kiválasztása
+        const navStatus = document.getElementById('nav-status');
+        const statusDot = document.getElementById('status-dot');
+        const statusText = document.getElementById('status-text');
         const distanceInfo = document.getElementById('distance-info');
         const poiInfo = document.getElementById('poi-info');
         const galleryMainImage = document.getElementById('gallery-main-image');
@@ -483,11 +539,43 @@
         const poiDescription = document.getElementById('poi-description');
         const poiAudio = document.getElementById('poi-audio');
         const closePoiButton = document.getElementById('close-poi');
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
 
         // Szimulációs gombok
         const simulateBuda = document.getElementById('simulate-buda');
         const simulateHalaszbastya = document.getElementById('simulate-halaszbastya');
         const simulateLanchid = document.getElementById('simulate-lanchid');
+
+        // Tab váltás
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const tabId = tab.getAttribute('data-tab');
+                
+                // Tab aktiválása
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                
+                // Tartalom megjelenítése
+                tabContents.forEach(content => content.classList.remove('active'));
+                document.getElementById(`${tabId}-tab`).classList.add('active');
+            });
+        });
+
+        // Navigáció státusz frissítése
+        function updateNavigationStatus(active) {
+            isNavigationActive = active;
+            
+            if (active) {
+                navStatus.classList.add('active');
+                statusDot.classList.add('active');
+                statusText.textContent = 'Navigáció aktív';
+            } else {
+                navStatus.classList.remove('active');
+                statusDot.classList.remove('active');
+                statusText.textContent = 'Navigáció inaktív';
+            }
+        }
 
         // Távolság információk frissítése
         function updateDistanceInfo() {
@@ -577,8 +665,11 @@
         function initGeolocation() {
             if (!navigator.geolocation) {
                 distanceInfo.innerHTML = '<p>A böngésző nem támogatja a helymeghatározást</p>';
+                updateNavigationStatus(false);
                 return;
             }
+            
+            updateNavigationStatus(true);
             
             // Pozíció változás figyelése
             watchId = navigator.geolocation.watchPosition(
@@ -586,9 +677,11 @@
                     currentPosition = position;
                     checkForNearbyPois();
                     updateDistanceInfo();
+                    updateNavigationStatus(true);
                 },
                 error => {
                     distanceInfo.innerHTML = '<p>Helymeghatározás nem elérhető</p>';
+                    updateNavigationStatus(false);
                 },
                 {
                     enableHighAccuracy: true,
@@ -643,7 +736,13 @@
             poiAudio.src = poi.audio;
             
             initGallery(poi);
-            poiInfo.classList.add('active');
+            
+            // Váltás a POI tabra
+            tabs.forEach(t => t.classList.remove('active'));
+            document.querySelector('[data-tab="poi"]').classList.add('active');
+            
+            tabContents.forEach(content => content.classList.remove('active'));
+            document.getElementById('poi-tab').classList.add('active');
             
             // Hang automatikus lejátszása
             setTimeout(() => {
@@ -678,11 +777,18 @@
             
             checkForNearbyPois();
             updateDistanceInfo();
+            updateNavigationStatus(true);
         }
 
         // Bezárás gomb eseménykezelő
         closePoiButton.addEventListener('click', () => {
-            poiInfo.classList.remove('active');
+            // Váltás a távolságok tabra
+            tabs.forEach(t => t.classList.remove('active'));
+            document.querySelector('[data-tab="distance"]').classList.add('active');
+            
+            tabContents.forEach(content => content.classList.remove('active'));
+            document.getElementById('distance-tab').classList.add('active');
+            
             poiAudio.pause();
         });
 
