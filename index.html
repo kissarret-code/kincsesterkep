@@ -524,13 +524,14 @@
         let currentPoi = null;
         let currentImageIndex = 0;
         let isNavigationActive = false;
+        let currentAudio = null;
 
         // Elemek kiválasztása
         const navStatus = document.getElementById('nav-status');
         const statusDot = document.getElementById('status-dot');
         const statusText = document.getElementById('status-text');
         const distanceInfo = document.getElementById('distance-info');
-        const poiInfo = document.getElementById('poi-info');
+        const poiInfoElement = document.getElementById('poi-info');
         const galleryMainImage = document.getElementById('gallery-main-image');
         const galleryThumbnails = document.getElementById('gallery-thumbnails');
         const prevBtn = document.getElementById('prev-btn');
@@ -546,6 +547,22 @@
         const simulateBuda = document.getElementById('simulate-buda');
         const simulateHalaszbastya = document.getElementById('simulate-halaszbastya');
         const simulateLanchid = document.getElementById('simulate-lanchid');
+
+        // Hang lejátszásának kezelése
+        function playAudio(audioUrl) {
+            // Előző hang leállítása
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio = null;
+            }
+            
+            // Új hang lejátszása
+            const audio = new Audio(audioUrl);
+            audio.play().catch(e => {
+                console.log("Automatikus hanglejátszás nem engedélyezett: ", e);
+            });
+            currentAudio = audio;
+        }
 
         // Tab váltás
         tabs.forEach(tab => {
@@ -707,6 +724,9 @@
                 if (distance <= poi.radius && currentPoi !== poi.id) {
                     currentPoi = poi.id;
                     showPoiInfo(poi);
+                    
+                    // Hang automatikus lejátszása
+                    playAudio(poi.audio);
                 }
             });
         }
@@ -743,13 +763,6 @@
             
             tabContents.forEach(content => content.classList.remove('active'));
             document.getElementById('poi-tab').classList.add('active');
-            
-            // Hang automatikus lejátszása
-            setTimeout(() => {
-                poiAudio.play().catch(e => {
-                    console.log("Automatikus hanglejátszás nem engedélyezett");
-                });
-            }, 500);
         }
 
         // Szimulációs funkciók
@@ -789,7 +802,11 @@
             tabContents.forEach(content => content.classList.remove('active'));
             document.getElementById('distance-tab').classList.add('active');
             
-            poiAudio.pause();
+            // Hang leállítása
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio = null;
+            }
         });
 
         // Alkalmazás inicializálása
